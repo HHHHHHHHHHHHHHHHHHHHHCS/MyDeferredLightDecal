@@ -20,17 +20,18 @@ public class CustomLight : MonoBehaviour
 
     private void OnEnable()
     {
-        throw new System.NotImplementedException();
+        CustomLightSystem.Instance.Add(this);
     }
 
     private void Start()
     {
-        throw new System.NotImplementedException();
+
+        CustomLightSystem.Instance.Add(this);
     }
 
     private void OnDisable()
     {
-        throw new System.NotImplementedException();
+        CustomLightSystem.Instance.Remove(this);
     }
 
     public Color GetLinearColor()

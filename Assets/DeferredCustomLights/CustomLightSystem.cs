@@ -19,7 +19,7 @@ public class CustomLightSystem
         }
     }
 
-    private HashSet<CustomLight> lights = new HashSet<CustomLight>();
+    public HashSet<CustomLight> lights = new HashSet<CustomLight>();
 
     public void Add(CustomLight light)
     {
