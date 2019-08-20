@@ -63,7 +63,6 @@ public class CustomLight : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position,size);
         }
         Gizmos.matrix=Matrix4x4.identity;
-        ;
         Gizmos.DrawWireSphere(transform.position,range);
     }
 }

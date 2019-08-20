@@ -68,6 +68,36 @@
 		}
 		
 		
+		void DeferredCalculateLightParams(unity_v2f_deferred i, out float3 outWorldPos, out float2 outUV, out half3 outLightDir, out float outAtten, out float outFadeDist)
+		{
+			//这里是同比例放大
+			i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
+			float2 uv = i.ux.xy / i.uv.w;
+			
+			//读取深度并且重建世界坐标
+			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+			depth = Linear01Depth(depth);
+			float4 vpos = float4(i.ray * depth, 1);
+			float3 wpos = mul(unity_CameraToWorld, vpos).xyz;
+			
+			//模型矩阵的位移
+			float3 lightPos = float3(unity_ObjectToWorld[0][3], unity_ObjectToWorld[1][3], unity_ObjectToWorld[2][3]);
+			
+			//点光
+			float3 tolight = wpos - lightPos;
+			half3 lightDir = -normalize(tolight);
+			
+			//获得距离比例 得到衰减
+			float att = dot(tolight, tolight) * _CustomLightInvSqRadius;
+			float atten = tex2D(_LightTextureB0, att.rr).UNITY_ATTEN_CHANNEL;//UNITY_ATTEN_CHANNEL是r或者是a，这具体取决于目标平台
+			
+			outWorldPos = wpos;
+			outUV = uv;
+			outLightDir = lightDir;
+			outAtten = atten;
+			outFadeDist = 0;
+		}
+		
 		ENDCG
 		
 	}
