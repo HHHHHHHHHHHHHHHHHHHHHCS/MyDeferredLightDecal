@@ -98,6 +98,54 @@
 			outFadeDist = 0;
 		}
 		
+		half4 CalculateLight(unity_v2f_deferred i)
+		{
+			float3 wpos;
+			float2 uv;
+			float atten, fadeDist;
+			UnityLight light = (UnityLight)0;
+			DeferredCalculateLightParams(i, wpos, uv, light.dir, atten, fadeDist);
+			
+			half4 gbuffer0 = tex2D(_CameraGBufferTexture0, uv);
+			half4 gbuffer1 = tex2D(_CameraGBufferTexture1, uv);
+			half4 gbuffer2 = tex2D(_CameraGBufferTexture2, uv);
+			
+			light.color = _CustomLightLengthColor.rgb * atten;
+			half3 baseColor = gbuffer0.rgb;
+			half3 specColor = gbuffer1.rgb;
+			half3 normalWorld = gbuffer2.rgb * 2 - 1;
+			normalWorld = normalize(normalWorld);
+			half oneMinusRoughness = gbuffer1.a;
+			float3 eyeVec = normalize(wpos - _WorldSpaceCameraPos);
+			
+			
+			float3 lightPos = float3(unity_ObjectToWorld[0][3], unity_ObjectToWorld[1][3], unity_ObjectToWorld[2][3]);
+			float3 lightAxisx = normalize(float3(unity_ObjectToWorld[0][0], unity_ObjectToWorld[1][0], unity_ObjectToWorld[2][0]));
+			
+			if (_CustomLightType == 1)
+			{
+				float3 lightPos1 = lightPos + lightAxisx * _CustomLightLength;
+				float3 lightPos2 = lightPos - lightAxisx * _CustomLightLength;
+				light.dir = CalcTubeLightToLight(wpos, lightPos1, lightPos2, eyeVec, normalWorld, _CustomLightSize);
+			}
+			else
+			{
+				light.dir = CalcSphereLightToLight(wpos, lightPos, eyeVec, normalWorld, _CustomLightSize);
+			}
+			
+			half oneMinusReflectivity = 1 - SpecularStrength(specColor.rgb);
+			light.ndotl = LambertTerm(normalWorld, light.dir);
+			
+			UnityIndirect ind;
+			UNITY_INITIALIZE_OUTPUT(UnityIndirect, ind);
+			ind.diffuse = 0;
+			ind.specular = 0;
+			
+			half4 res = UNITY_BRDF_PBS(baseColor, specColor, oneMinusReflectivity, oneMinusRoughness, normalWorld, -eyeVec, light, ind);
+			
+			return res;
+		}
+		
 		ENDCG
 		
 	}
