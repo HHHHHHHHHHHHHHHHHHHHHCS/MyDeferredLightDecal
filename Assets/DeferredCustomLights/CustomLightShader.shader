@@ -6,10 +6,13 @@
 		Tags { "Queue" = "Transparent-1" }
 		
 		CGINCLUDE
-		
+		#define POINT
 		#include "UnityCG.cginc"
 		#include "UnityPBSLighting.cginc"
 		#include "UnityDeferredLibrary.cginc"
+		
+		//Light color
+		half4 _CustomLightColor;
 		
 		// Light parameters
 		// x tube length
@@ -72,7 +75,7 @@
 		{
 			//这里是同比例放大
 			i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
-			float2 uv = i.ux.xy / i.uv.w;
+			float2 uv = i.uv.xy / i.uv.w;
 			
 			//读取深度并且重建世界坐标
 			float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
@@ -110,7 +113,7 @@
 			half4 gbuffer1 = tex2D(_CameraGBufferTexture1, uv);
 			half4 gbuffer2 = tex2D(_CameraGBufferTexture2, uv);
 			
-			light.color = _CustomLightLengthColor.rgb * atten;
+			light.color = _CustomLightColor.rgb * atten;
 			half3 baseColor = gbuffer0.rgb;
 			half3 specColor = gbuffer1.rgb;
 			half3 normalWorld = gbuffer2.rgb * 2 - 1;
@@ -145,8 +148,76 @@
 			
 			return res;
 		}
-		
 		ENDCG
+		
+		Pass
+		{
+			Fog
+			{
+				Mode Off
+			}
+			
+			ZWrite Off
+			ZTest Always
+			Blend One One
+			Cull Front
+			
+			CGPROGRAM
+			
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma exclude_renderers nomrt
+			
+			unity_v2f_deferred vert(float4 vertex: POSITION)
+			{
+				unity_v2f_deferred o;
+				o.pos = UnityObjectToClipPos(vertex);
+				o.uv = ComputeScreenPos(o.pos);
+				o.ray = UnityObjectToViewPos(vertex) * float3(-1, -1, 1);
+				return o;
+			}
+			
+			half4 frag(unity_v2f_deferred i): SV_TARGET
+			{
+				return CalculateLight(i);
+			}
+			
+			ENDCG
+			
+		}
+		
+		Pass
+		{
+			Fog
+			{
+				Mode Off
+			}
+			
+			ZWrite Off
+			Blend One One
+			
+			CGPROGRAM
+			
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma exclude_renderers nomrt
+			
+			float4 vert(float4 vertex: POSITION): SV_POSITION
+			{
+				return UnityObjectToClipPos(vertex);
+			}
+			
+			half4 frag(): SV_TARGET
+			{
+				return half4(_CustomLightColor.rgb, 1);
+			}
+			
+			ENDCG
+			
+		}
+
 		
 	}
 }

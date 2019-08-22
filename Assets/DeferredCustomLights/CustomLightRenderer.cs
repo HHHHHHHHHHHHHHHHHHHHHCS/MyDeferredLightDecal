@@ -113,7 +113,7 @@ public class CustomLightRenderer : MonoBehaviour
             }
             else if (item.type == CustomLight.Kind.Tube)
             {
-                trs = Matrix4x4.TRS(item.transform.position, item.transform.rotation, Vector3.one * item.size * 2);
+                trs = Matrix4x4.TRS(item.transform.position, item.transform.rotation, new Vector3(item.tubeLength * 2, item.size * 2, item.size * 2));
                 buf.beforeAlpha.DrawMesh(cubeMesh, trs, lightMaterial, 0, 1);
             }
         }
