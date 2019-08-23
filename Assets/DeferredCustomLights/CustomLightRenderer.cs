@@ -98,7 +98,7 @@ public class CustomLightRenderer : MonoBehaviour
             buf.afterLighting.SetGlobalColor(propParams, param);
             buf.afterLighting.SetGlobalColor(propColor, item.GetLinearColor());
 
-            trs = Matrix4x4.TRS(item.transform.position, item.transform.rotation, Vector3.one * item.size * 2);
+            trs = Matrix4x4.TRS(item.transform.position, item.transform.rotation, Vector3.one * item.range * 2);
             buf.afterLighting.DrawMesh(sphereMesh, trs, lightMaterial, 0, 0);
         }
 

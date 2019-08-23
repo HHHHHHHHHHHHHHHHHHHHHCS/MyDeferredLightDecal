@@ -25,7 +25,6 @@ public class CustomLight : MonoBehaviour
 
     private void Start()
     {
-
         CustomLightSystem.Instance.Add(this);
     }
 
@@ -36,6 +35,8 @@ public class CustomLight : MonoBehaviour
 
     public Color GetLinearColor()
     {
+        //场景的颜色空间一定要是Linear
+        //新的产生的颜色要从gamma->linear
         return new Color(
             Mathf.GammaToLinearSpace(color.r * intensity),
             Mathf.GammaToLinearSpace(color.g * intensity),
@@ -46,23 +47,25 @@ public class CustomLight : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawIcon(transform.position,type==Kind.Tube?"AreaLight Gizmo":"PointLight Gizmo",true);
+        Gizmos.DrawIcon(transform.position, type == Kind.Tube ? "AreaLight Gizmo" : "PointLight Gizmo", true);
     }
 
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = new Color(0.1f,0.7f,1.0f,0.6f);
+        Gizmos.color = new Color(0.1f, 0.7f, 1.0f, 0.6f);
         if (type == Kind.Tube)
         {
-            Gizmos.matrix = Matrix4x4.TRS(transform.position,transform.rotation,new Vector3(tubeLength*2,size*2,size*2));
-            Gizmos.DrawWireCube(Vector3.zero,Vector3.one);
+            Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation,
+                new Vector3(tubeLength * 2, size * 2, size * 2));
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
         }
         else
         {
-            Gizmos.matrix=Matrix4x4.identity;
-            Gizmos.DrawWireSphere(transform.position,size);
+            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.DrawWireSphere(transform.position, size);
         }
-        Gizmos.matrix=Matrix4x4.identity;
-        Gizmos.DrawWireSphere(transform.position,range);
+
+        Gizmos.matrix = Matrix4x4.identity;
+        Gizmos.DrawWireSphere(transform.position, range);
     }
 }

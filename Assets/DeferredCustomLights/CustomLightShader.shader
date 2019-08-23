@@ -87,8 +87,8 @@
 			float3 lightPos = float3(unity_ObjectToWorld[0][3], unity_ObjectToWorld[1][3], unity_ObjectToWorld[2][3]);
 			
 			//点光
-			float3 tolight = wpos - lightPos;
-			half3 lightDir = -normalize(tolight);
+			float3 tolight = lightPos - wpos ;
+			half3 lightDir = normalize(tolight);
 			
 			//获得距离比例 得到衰减
 			float att = dot(tolight, tolight) * _CustomLightInvSqRadius;
@@ -174,7 +174,7 @@
 				unity_v2f_deferred o;
 				o.pos = UnityObjectToClipPos(vertex);
 				o.uv = ComputeScreenPos(o.pos);
-				o.ray = UnityObjectToViewPos(vertex) * float3(-1, -1, 1);
+				o.ray = UnityObjectToViewPos(vertex) * float3(-1, -1, 1);//取反 从指向摄像机变成 指向物体
 				return o;
 			}
 			
@@ -217,7 +217,5 @@
 			ENDCG
 			
 		}
-
-		
 	}
 }
