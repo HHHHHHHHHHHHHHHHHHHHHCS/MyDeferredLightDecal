@@ -1,4 +1,4 @@
-﻿Shader "HCS/PointArea"
+﻿Shader "HCS/S_PointArea"
 {
 	
 	SubShader
