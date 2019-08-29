@@ -317,6 +317,7 @@ GameObject:
   - component: {fileID: 1014828728}
   - component: {fileID: 1014828727}
   - component: {fileID: 1014828726}
+  - component: {fileID: 1014828730}
   m_Layer: 0
   m_Name: Glass
   m_TagString: Untagged
@@ -354,7 +355,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a6da4b9a39e2a1145832a43b0c078a8d, type: 2}
+  - {fileID: 2100000, guid: 35f8cee09423edf4a9e2ce7593cf8506, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -391,12 +392,25 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014828725}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.917, z: -1.53}
+  m_LocalPosition: {x: 0, y: 0.123, z: -1.53}
   m_LocalScale: {x: 5, y: 1.5, z: 0.1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1014828730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014828725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efafe4c756340d149818ccfce4ffdc8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blurShader: {fileID: 4800000, guid: dd908e97ca2041d46b45784d948a22fe, type: 3}
 --- !u!1 &1160320483
 GameObject:
   m_ObjectHideFlags: 0

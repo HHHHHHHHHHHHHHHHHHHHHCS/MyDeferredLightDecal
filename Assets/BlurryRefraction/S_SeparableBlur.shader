@@ -2,88 +2,76 @@
 {
 	Properties
 	{
-		_BumpAmt ("Distortion", Range(0, 64)) = 10
-		_TintAmt ("Tint Amount", Range(0, 1)) = 0.1
-		_MainTex ("Tint Color(RGB)", 2D) = "white" { }
-		_BumpMap ("Normalmap", 2D) = "bump" { }
+		_MainTex ("Base (RGB)", 2D) = "" { }
 	}
-	Category //Category 告诉下面的subshader 都用外面这一套渲染设置
+	
+	CGINCLUDE
+	
+	#include "UnityCG.cginc"
+	
+	struct v2f
 	{
-		//玻璃需要透明的
-		Tags { "Queue" = "Transparent" "RenderType" = "Transparent" }
+		float4 pos: POSITION;
+		float2 uv: TEXCOORD0;
 		
-		SubShader
+		float4 uv01: TEXCOORD1;
+		float4 uv23: TEXCOORD2;
+		float4 uv45: TEXCOORD3;
+	};
+	
+	float4 offsets;
+	
+	sampler2D _MainTex;
+	
+	v2f vert(appdata_img v)
+	{
+		v2f o;
+		o.pos = UnityObjectToClipPos(v.vertex);
+		
+		o.uv.xy = v.texcoord.xy;
+		
+		float4 step = offsets.xyxy * float4(1, 1, -1, -1);
+		
+		o.uv01 = v.texcoord.xyxy + step;
+		o.uv23 = v.texcoord.xyxy + step * 2.0;
+		o.uv45 = v.texcoord.xyxy + step * 3.0;
+		
+		return o;
+	}
+	
+	half4 frag(v2f i): SV_TARGET
+	{
+		half4 color = float4(0, 0, 0, 0);
+		
+		color += 0.40 * tex2D(_MainTex, i.uv);
+		color += 0.15 * tex2D(_MainTex, i.uv01.xy);
+		color += 0.15 * tex2D(_MainTex, i.uv01.zw);
+		color += 0.10 * tex2D(_MainTex, i.uv23.xy);
+		color += 0.10 * tex2D(_MainTex, i.uv23.zw);
+		color += 0.05 * tex2D(_MainTex, i.uv45.xy);
+		color += 0.05 * tex2D(_MainTex, i.uv45.zw);
+		
+		return color;
+	}
+	
+	ENDCG
+	
+	SubShader { 
+		Pass
 		{
-			Pass
+			ZTest Always Cull Off ZWrite Off
+			Fog
 			{
-				Tags { "LightMode" = "Always" }
-				
-				CGPROGRAM
-				
-				#pragma vertex vert
-				#pragma fragment frag
-				#pragma multi_compile_fog
-				#include "UnityCG.cginc"
-				
-				struct a2v
-				{
-					float4 vertex: POSITION;
-					float2 texcoord: TEXCOORD0;
-				};
-				
-				struct v2f
-				{
-					float4 vertex: POSITION;
-					float4 uvgrab: TEXCOORD0;
-					float2 uvbump: TEXCOORD1;
-					float2 uvmian: TEXCOORD2;
-					UNITY_FOG_COORDS(3)
-				};
-				
-				float _BumpAmt;
-				half _TintAmt;
-				float4 _BumpMap_ST;
-				float4 _MainTex_ST;
-				
-				v2f vert(a2v v)
-				{
-					v2f o;
-					o.vertex = UnityObjectToClipPos(v.vertex);
-					#if UNITY_UV_STARTS_AT_TOP
-						float scale = -1.0;
-					#else
-						float scale = 1.0;
-					#endif
-					
-					o.uvgrab.xy = (float2(o.vertex.x, o.vertex.y * scale) + o.vertex.w) * 0.5;
-					o.uvgrab.zw = o.vertex.zw;
-					o.uvbump = TRANSFORM_TEX(v.texcoord, _BumpMap);
-					o.uvmian = TRANSFORM_TEX(v.texcoord, _MainTex);
-					UNITY_TRANSFER_FOG(o, o.vertex);
-					return o;
-				}
-				
-				sampler2D _GrabBlurTexture;
-				float4 _GrabBlurTexture_TexelSize;
-				sampler2D _BumpMap;
-				sampler2D _MainTex;
-				
-				half4 frag(v2f i): SV_TARGET
-				{
-					half2 bump = UnpackNormal(tex2D(_BumpMap, i.uvbump)).rg;
-					float2 offset = bump * _BumpAmt * _GrabBlurTexture_TexelSize.xy;
-					i.uvgrab.xy = offset * i.uvgrab.z + i.uvgrab.xy;
-					
-					half4 col = tex2Dproj(_GrabBlurTexture, UNITY_PROJ_COORD(i.uvgrab));
-					half4 tint = tex2D(_MainTex, i.uvmian);
-					col = lerp(col, tint, _TintAmt);
-					UNITY_APPLY_FOG(i.fogCoord, col);
-					return col;
-				}
-				
-				ENDCG
-				
+				Mode Off
 			}
+
+			CGPROGRAM
+
+			#pragma fragmentoption ARB_precision_hint_fastest
+			#pragma vertex vert
+			#pragma fragment frag
+
+			ENDCG
 		}
 	}
 }
