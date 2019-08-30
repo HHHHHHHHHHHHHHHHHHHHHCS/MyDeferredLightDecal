@@ -19,7 +19,7 @@
 		float4 uv45: TEXCOORD3;
 	};
 	
-	float4 offsets;
+	uniform float4 offsets;
 	
 	sampler2D _MainTex;
 	

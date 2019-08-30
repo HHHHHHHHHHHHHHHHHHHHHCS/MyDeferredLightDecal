@@ -48,6 +48,7 @@
 				v2f vert(a2v v)
 				{
 					v2f o;
+					//跟ComputeScreenPos差不多
 					o.vertex = UnityObjectToClipPos(v.vertex);
 					#if UNITY_UV_STARTS_AT_TOP
 						float scale = -1.0;
