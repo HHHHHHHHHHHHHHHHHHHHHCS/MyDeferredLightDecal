@@ -17,14 +17,17 @@ public class Decal : MonoBehaviour
 
     private void OnEnable()
     {
+        DeferredDecalSystem.Instance.AddDecal(this);
     }
 
     private void Start()
     {
+        DeferredDecalSystem.Instance.AddDecal(this);
     }
 
     private void OnDisable()
     {
+        DeferredDecalSystem.Instance.RemoveDecal(this);
     }
 
     private void DrawGizmo(bool selected)
@@ -33,10 +36,10 @@ public class Decal : MonoBehaviour
         col.a = selected ? 0.1f : 0.1f;
         Gizmos.color = col;
         Gizmos.matrix = transform.localToWorldMatrix;
-        Gizmos.DrawCube(Vector3.zero,Vector3.one);
+        Gizmos.DrawCube(Vector3.zero, Vector3.one);
         col.a = selected ? 0.5f : 0.2f;
         Gizmos.color = col;
-        Gizmos.DrawWireCube(Vector3.zero,Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
     }
 
     private void OnDrawGizmos()

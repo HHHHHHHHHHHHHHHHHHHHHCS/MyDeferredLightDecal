@@ -20,9 +20,9 @@ public class DeferredDecalSystem
     }
 
 
-    private HashSet<Decal> decalDiffuse = new HashSet<Decal>();
-    private HashSet<Decal> decalNormals = new HashSet<Decal>();
-    private HashSet<Decal> decalBoth = new HashSet<Decal>();
+    public HashSet<Decal> decalDiffuse = new HashSet<Decal>();
+    public HashSet<Decal> decalNormals = new HashSet<Decal>();
+    public HashSet<Decal> decalBoth = new HashSet<Decal>();
 
     public void AddDecal(Decal d)
     {

@@ -50,5 +50,32 @@ public class DeferredDecalRenderer : MonoBehaviour
 
             cam.AddCommandBuffer(CameraEvent.BeforeLighting, buf);
         }
+
+        var system = DeferredDecalSystem.Instance;
+
+
+        var normalsID = Shader.PropertyToID("_NormalCopy");
+        buf.GetTemporaryRT(normalsID, -1, -1);
+        buf.Blit(BuiltinRenderTextureType.GBuffer2, normalsID);
+        buf.SetRenderTarget(BuiltinRenderTextureType.GBuffer0, BuiltinRenderTextureType.CameraTarget);
+        foreach (var decal in system.decalDiffuse)
+        {
+            buf.DrawMesh(cubeMesh, decal.transform.localToWorldMatrix, decal.material);
+        }
+
+        buf.SetRenderTarget(BuiltinRenderTextureType.GBuffer2, BuiltinRenderTextureType.CameraTarget);
+        foreach (var decal in system.decalNormals)
+        {
+            buf.DrawMesh(cubeMesh, decal.transform.localToWorldMatrix, decal.material);
+        }
+
+        RenderTargetIdentifier[] mrt = {BuiltinRenderTextureType.GBuffer0, BuiltinRenderTextureType.GBuffer2};
+        buf.SetRenderTarget(mrt,BuiltinRenderTextureType.CameraTarget);
+        foreach (var decal in system.decalBoth)
+        {
+            buf.DrawMesh(cubeMesh,decal.transform.localToWorldMatrix,decal.material);
+        }
+        buf.ReleaseTemporaryRT(normalsID);
+
     }
 }
