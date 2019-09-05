@@ -1,58 +1,67 @@
-﻿Shader "Unlit/S_DecalShaderDiffuseOnly"
+﻿Shader "HCS/S_DecalShaderDiffuseOnly"
 {
-    Properties
-    {
-        _MainTex ("Texture", 2D) = "white" {}
-    }
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
-
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
-
-            #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-            };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
-
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
-            }
-            ENDCG
-        }
-    }
+	Properties
+	{
+		_MainTex ("Diffuse", 2D) = "white" { }
+	}
+	
+	SubShader
+	{
+		Pass
+		{
+			Fog
+			{
+				Mode Off
+			}
+			ZWrite Off
+			Blend SrcAlpha OneMinusSrcAlpha
+			
+			
+			CGPROGRAM
+			
+			#pragma target 3.0
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma exclude_renderers nomrt
+			
+			#include "UnityCG.cginc"
+			
+			struct v2f
+			{
+				float4 pos: SV_POSITION;
+				half2 uv: TEXCOORD0;
+				half4 screenUV: TEXCOORD1;
+				float3 ray: TEXCOORD2;
+				half3 orientation: TEXCOORD3;
+			};
+			
+			v2f vert(float4 v: POSITION)
+			{
+				v2f o;
+				o.pos = UnityObjectToClipPos(v);
+				o.uv = v.xz + 0.5;//其实XY 也差不多
+				o.screenUV = ComputeScreenPos(o.pos);
+				o.ray = mul(UNITY_MATRIX_MV, v).xyz * float3(-1, -1, 1);
+				o.orientation = mul((float3x3)unity_ObjectToWorld, float3(0, 1, 0));
+				return o;
+			}
+			
+			CBUFFER_START(UnityPerCamera2)
+			
+			CBUFFER_END
+			
+			sampler2D _MainTex;
+			sampler2D_float _CameraDepthTexture;
+			sampler2D _NormalsCopy;
+			
+			half4 frag(v2f i): SV_TARGET
+			{
+				i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
+				float2 uv = i.screenUV.xy/i.screenUV.w;
+			}
+			
+			ENDCG
+			
+		}
+	}
 }
