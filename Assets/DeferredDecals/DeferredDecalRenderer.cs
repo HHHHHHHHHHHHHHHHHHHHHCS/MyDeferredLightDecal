@@ -54,7 +54,7 @@ public class DeferredDecalRenderer : MonoBehaviour
         var system = DeferredDecalSystem.Instance;
 
 
-        var normalsID = Shader.PropertyToID("_NormalCopy");
+        var normalsID = Shader.PropertyToID("_NormalsCopy");
         buf.GetTemporaryRT(normalsID, -1, -1);
         buf.Blit(BuiltinRenderTextureType.GBuffer2, normalsID);
         buf.SetRenderTarget(BuiltinRenderTextureType.GBuffer0, BuiltinRenderTextureType.CameraTarget);

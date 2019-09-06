@@ -57,7 +57,25 @@
 			half4 frag(v2f i): SV_TARGET
 			{
 				i.ray = i.ray * (_ProjectionParams.z / i.ray.z);
-				float2 uv = i.screenUV.xy/i.screenUV.w;
+				float2 uv = i.screenUV.xy / i.screenUV.w;
+				
+				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+				depth = Linear01Depth(depth);
+				float4 vpos = float4(i.ray * depth, 1);
+				float3 wpos = mul(unity_CameraToWorld, vpos).xyz;
+				float3 opos = mul(unity_WorldToObject, float4(wpos, 1)).xyz;
+				
+				clip(0.5 - abs(opos.xyz));
+				
+				i.uv = opos.xz + 0.5;
+				
+				half3 normal = tex2D(_NormalsCopy, uv).rgb;
+				half3 wnormal = normal.rgb * 2.0 - 1.0;
+				clip(dot(wnormal, i.orientation) - 0.3);
+				
+				half4 col = tex2D(_MainTex, i.uv);
+				
+				return col;
 			}
 			
 			ENDCG
