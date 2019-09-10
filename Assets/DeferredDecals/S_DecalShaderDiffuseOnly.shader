@@ -41,7 +41,7 @@
 				o.pos = UnityObjectToClipPos(v);
 				o.uv = v.xz + 0.5;//其实XY 也差不多
 				o.screenUV = ComputeScreenPos(o.pos);
-				o.ray = mul(UNITY_MATRIX_MV, v).xyz * float3(-1, -1, 1);
+				o.ray = mul(UNITY_MATRIX_MV, v).xyz * float3(-1, -1, 1);//View矩阵存在XY翻转
 				o.orientation = mul((float3x3)unity_ObjectToWorld, float3(0, 1, 0));
 				return o;
 			}
@@ -65,12 +65,14 @@
 				float3 wpos = mul(unity_CameraToWorld, vpos).xyz;
 				float3 opos = mul(unity_WorldToObject, float4(wpos, 1)).xyz;
 				
+				//矩阵范围剔除
 				clip(0.5 - abs(opos.xyz));
 				
 				i.uv = opos.xz + 0.5;
 				
 				half3 normal = tex2D(_NormalsCopy, uv).rgb;
 				half3 wnormal = normal.rgb * 2.0 - 1.0;
+				//边缘剔除
 				clip(dot(wnormal, i.orientation) - 0.3);
 				
 				half4 col = tex2D(_MainTex, i.uv);

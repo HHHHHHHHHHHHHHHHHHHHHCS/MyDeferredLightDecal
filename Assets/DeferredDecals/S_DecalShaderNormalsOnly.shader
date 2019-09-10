@@ -1,4 +1,4 @@
-﻿Shader "Unlit/S_DecalShaderNormalsOnly"
+﻿Shader "HCS/S_DecalShaderNormalsOnly"
 {
 	Properties
 	{
@@ -46,7 +46,7 @@
 				o.pos = UnityObjectToClipPos(v);
 				o.uv = v.xz + 0.5;//其实XY 也差不多
 				o.screenUV = ComputeScreenPos(o.pos);
-				o.ray = mul(UNITY_MATRIX_MV, v).xyz * float3(-1, -1, 1);
+				o.ray = mul(UNITY_MATRIX_MV, v).xyz * float3(-1, -1, 1);//View矩阵存在XY翻转
 				o.orientation = mul((float3x3)unity_ObjectToWorld, float3(0, 1, 0));
 				o.orientationX = mul((float3x3)unity_ObjectToWorld, float3(1, 0, 0));
 				o.orientationZ = mul((float3x3)unity_ObjectToWorld, float3(0, 0, 1));
@@ -94,6 +94,7 @@
 				
 				half3 nor = UnpackNormal(tex2D(_BumpMap, i.uv));
 				//nor = half3(0,0,1);
+				//转换到世界坐标系
 				half3x3 norMat = half3x3(i.orientationX, i.orientationZ, i.orientation);
 				nor = mul(nor, norMat);
 				
