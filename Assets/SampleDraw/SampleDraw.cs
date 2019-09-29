@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class SampleBall : MonoBehaviour
+public class SampleDraw : MonoBehaviour
 {
-    public Material ballMaterial;
-    public Renderer ballRenderer;
+    public Transform parent;
 
     private CommandBuffer cacheCommandBuffer1, cacheCommandBuffer2;
 
@@ -15,13 +14,19 @@ public class SampleBall : MonoBehaviour
         cacheCommandBuffer1 = new CommandBuffer();
         cacheCommandBuffer1.name = "CB1";
         //如果第四个参数写-1 则会渲染全部的Pass
-        cacheCommandBuffer1.DrawRenderer(ballRenderer, ballMaterial, 0, 0);
+        foreach (var item in parent.GetComponentsInChildren<Renderer>())
+        {
+            cacheCommandBuffer1.DrawRenderer(item, item.sharedMaterial, 0, 0);
+        }
         Camera.main.AddCommandBuffer(CameraEvent.AfterGBuffer, cacheCommandBuffer1);
 
 
         cacheCommandBuffer2 = new CommandBuffer();
         cacheCommandBuffer2.name = "CB2";
-        cacheCommandBuffer2.DrawRenderer(ballRenderer, ballMaterial, 0, 0);
+        foreach (var item in parent.GetComponentsInChildren<Renderer>())
+        {
+            cacheCommandBuffer2.DrawRenderer(item, item.sharedMaterial, 0, 0);
+        }
         Camera.main.AddCommandBuffer(CameraEvent.AfterLighting, cacheCommandBuffer2);
     }
 
